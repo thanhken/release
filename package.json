@@ -1,0 +1,12 @@
+{
+  "name": "@stindy/release",
+  "version": "1.0.0",
+  "main": "run.sh",
+  "repository": "https://github.com/stindy/release.git",
+  "author": "admin@iamken.work",
+  "bin": {
+    "release": "./run.sh"
+  },
+  "license": "MIT",
+  "preferGlobal": true
+}
