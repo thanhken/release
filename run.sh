@@ -1,8 +1,6 @@
 #!/bin/bash
 set -e
-####################################################################
 ############################# DEFINE ###############################
-####################################################################
 open_url() {
     local url=$1
     if [[ "$OSTYPE" == "darwin"* ]]; then
@@ -52,57 +50,58 @@ echo_color() {
         echo -e "$@"
     fi
 }
+echo_helper() {
+    echo_color -n -c none "Usage:"
+    echo_color -n -c green "release" -c none "\t\t\t\tUpgrade version in the" -c yellow "develop" -c none "branch."
+    echo_color -n -c green "release" -c yellow "new" -c none "\t\t\t\tUpgrade version in" -c yellow "a new branch" -c none "automatically created."
+    echo_color -n -c green "release" -c yellow "<other_name>" -c none "\t\t\tUpgrade version in the" -c yellow "<other_name>" -c none "branch (existing branch)."
+    echo_color -n -c none "\t[-u | --upgrade <pkg>]" -c none "\t\tAlso upgrade this package (ex:" -c yellow "@azoom/tomemiru-db@1.2.3" -c none ")"
+    echo_color -n -c none "\t[-r | --release <branch>]" -c none "\tRelease branch name (default:" -c yellow "main" -c none ")"
+    echo_color -n -c none "\t[-p | --push]" -c none "\t\t\tPush your changes to remote repository."
+    echo_color -n -c none "\t[-h | --help]" -c none "\t\t\tShow help message."
+}
 ####################################################################
-####################################################################
-####################################################################
-for ((i = 1; i <= $#; i++)); do
-    arg="${!i}"
-    if [[ "$arg" == "-h" || "$arg" == "--help" ]]; then
-        echo_color -n -c none "Usage:"
-        echo_color -n -c green "release" -c none "\t\t\tUpgrade version in the" -c yellow "develop" -c none "branch."
-        echo_color -n -c green "release" -c yellow "new" -c none "\t\t\tUpgrade version in" -c yellow "a new branch" -c none "automatically created."
-        echo_color -n -c green "release" -c yellow "<other_name>" -c none "\t\tUpgrade version in the" -c yellow "<other_name>" -c none "branch (existing branch)."
-        echo_color -n -c none "\t[-u | --upgrade <pkg>]" -c none "\tAlso upgrade this package (ex:" -c yellow "@azoom/tomemiru-db@1.2.3" -c none ")"
-        echo_color -n -c none "\t[-h | --help]" -c none "\t\tShow help message."
-        exit 0
-    fi
-done
-####################################################################
-####################################################################
-####################################################################
+
 max_patch=9
 max_minor=9
+release_type=$1
 release_branch="main"
 version_up_branch="develop"
+upgrade_package=""
 github_url=$(git remote get-url origin)
+push_your_changes=false
 if [[ $github_url == *".git" ]]; then
     github_url="${github_url%.git}"
 fi
-release_type=$1
-upgrade_package=""
 
-has_upgrade_package=false
-for ((i = 1; i <= $#; i++)); do
-    arg="${!i}"
-    if [[ "$arg" == "-u" || "$arg" == "--upgrade" ]]; then
-        has_upgrade_package=true
-    elif [[ "$has_upgrade_package" == "true" ]]; then
-        upgrade_package="${arg}"
-        break
-    fi
-done
+argument_parser() {
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+            -u|--upgrade)
+                upgrade_package="$2"
+                shift 2
+                ;;
+            -r|--release)
+                release_branch="$2"
+                shift 2
+                ;;
+            -h|--help)
+                echo_helper "$@"
+                exit 0
+                ;;
+            -p|--push)
+                push_your_changes=true
+                shift
+                ;;
+            *)
+                release_type=$1
+                shift
+                ;;
+        esac
+    done
+}
 
-has_release_config=false
-for ((i = 1; i <= $#; i++)); do
-    arg="${!i}"
-    if [[ "$arg" == "-r" || "$arg" == "--release" ]]; then
-        has_release_config=true
-    elif [[ "$has_release_config" == "true" ]]; then
-        release_branch="${arg}"
-        break
-    fi
-done
-
+argument_parser "$@"
 
 ############# GET NEW VERSION #############
 echo_color -c none "Checking out and pulling from" -c red $release_branch -c none "branch"
@@ -145,7 +144,7 @@ if [ "$release_type" == "new" ]; then
     git checkout -b $version_up_branch
     echo_color -c none "Created" -c green $version_up_branch -c none "branch"
 else
-    if [ -n "$release_type" ]; then
+    if [ -n "$release_type" ] && [[ ! "$release_type" == -* ]]; then
         version_up_branch=$release_type
     fi
     echo_color -c none "Checking out and pulling from" -c green $version_up_branch -c none "branch"
@@ -171,14 +170,16 @@ git commit --amend -n -m ":bookmark: v$new_version"
 
 
 ############## PUSH #############
-echo_color -c none "Pushing changes to remote repository..."
-if [ "$release_type" == "hotfix" ]; then
-    git push --set-upstream origin $version_up_branch
-else
-    git push origin $version_up_branch
-fi
+if $push_your_changes; then
+    echo_color -c none "Pushing changes to remote repository..."
+    if [ "$release_type" == "new" ]; then
+        git push --set-upstream origin $version_up_branch
+    else
+        git push origin $version_up_branch
+    fi
 
-url="$github_url/pull/new/$version_up_branch"
-open_url $url
-git checkout $release_branch
+    url="$github_url/pull/new/$version_up_branch"
+    open_url $url
+    git checkout $release_branch
+fi
 echo_color -c none "Automation script completed successfully!"
