@@ -103,6 +103,14 @@ argument_parser() {
 
 argument_parser "$@"
 
+############# CHECK GIT STATUS #############
+if git diff --exit-code --quiet; then
+    echo_color -c none "No files have changed."
+else
+    echo_color -c none  "Please commit your changes before continue."
+    exit 0
+fi
+
 ############# GET NEW VERSION #############
 echo_color -c none "Checking out and pulling from" -c red $release_branch -c none "branch"
 git fetch
