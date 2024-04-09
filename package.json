@@ -1,6 +1,6 @@
 {
   "name": "@stindy/release",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "main": "run.sh",
   "repository": "https://github.com/stindy/release.git",
   "author": "admin@iamken.work",
@@ -9,7 +9,8 @@
   },
   "license": "MIT",
   "preferGlobal": true,
+  "private": false,
   "publishConfig": {
-    "registry": "https://npm.pkg.github.com"
+    "registry": "https://registry.npmjs.org"
   }
 }
