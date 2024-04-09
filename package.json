@@ -1,6 +1,6 @@
 {
   "name": "@stindy/release",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "main": "run.sh",
   "repository": "https://github.com/stindy/release.git",
   "author": "admin@iamken.work",
