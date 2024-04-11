@@ -2,6 +2,12 @@
 
 This Bash script automates the process of releasing new versions of your software project. It handles versioning, branch management, and optionally pushing changes to a remote repository. The script is designed to work across different operating systems including macOS and Windows.
 
+## Installation
+Using npm:
+```bash
+$ npm i -g @stindy/release
+```
+
 ## Features
 - Increment version numbers automatically based on specified release type.
 - Create a new release branch or work on an existing one.
