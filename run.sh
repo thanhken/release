@@ -125,16 +125,23 @@ major_version=$(echo $current_version | cut -d. -f1)
 minor_version=$(echo $current_version | cut -d. -f2)
 patch_version=$(echo $current_version | cut -d. -f3)
 
+
+# Initialize is_version_bumped variable
+is_version_bumped=false
+
 # Increment version and handle max value of 9
 new_major_version=$((major_version))
 if [ $patch_version -ge $max_patch ]; then
     new_minor_version=$((minor_version + 1))
     new_patch_version=0
+    is_version_bumped=true
 else
     new_minor_version=$((minor_version))
     new_patch_version=$((patch_version + 1))
+    is_version_bumped=true
 fi
-if [ $new_minor_version -ge $max_minor ]; then
+
+if [ $new_minor_version -ge $max_minor ] && [ "$is_version_bumped" != "true" ]; then
     new_major_version=$((new_major_version + 1))
     new_minor_version=0
 fi
