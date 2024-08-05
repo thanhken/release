@@ -194,7 +194,12 @@ if $push_your_changes; then
     fi
 
     url="$github_url/pull/new/$version_up_branch"
-    open_url $url
-    git checkout $release_branch
+
+    if [ "$release_branch" == "$version_up_branch" ]; then
+      git push origin tag "v$new_version"
+    else
+      open_url $url
+      git checkout $release_branch
+    fi
 fi
 echo_color -c none "Automation script completed successfully!"
