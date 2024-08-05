@@ -196,6 +196,11 @@ if $push_your_changes; then
     url="$github_url/pull/new/$version_up_branch"
 
     if [ "$release_branch" == "$version_up_branch" ]; then
+      git tag -d "v$new_version"
+      git checkout $release_branch
+      git fetch
+      git pull
+      git tag "v$new_version"
       git push origin tag "v$new_version"
     else
       open_url $url
