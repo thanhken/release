@@ -1,6 +1,6 @@
 {
   "name": "@thanhken/release",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "main": "run.sh",
   "repository": "https://github.com/thanhken/release.git",
   "author": "admin@iamken.work",
